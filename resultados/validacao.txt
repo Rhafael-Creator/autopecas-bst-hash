@@ -1,0 +1,18 @@
+Validacao local - 08/11/2026
+gcc (Debian 14.2.0-19) 14.2.0
+
+./build/teste
+BST: vazia, buscas, duplicatas, ordens, alturas, remocoes e liberacao OK
+HASH: vazia, colisoes, distribuicao, carga, buscas, remocoes e liberacao OK
+VENDA: validacao e atualizacao de estoque OK
+Todos os testes passaram.
+python3 tests/teste_menu.py
+MENU: entrada invalida, nomes com espacos, percurso ordenado, venda e EOF OK
+
+ASAN_OPTIONS=detect_leaks=0 ./build/teste_sanitize
+BST: vazia, buscas, duplicatas, ordens, alturas, remocoes e liberacao OK
+HASH: vazia, colisoes, distribuicao, carga, buscas, remocoes e liberacao OK
+VENDA: validacao e atualizacao de estoque OK
+Todos os testes passaram.
+
+LeakSanitizer detect_leaks=1: nao executou: incompatibilidade com ptrace.
