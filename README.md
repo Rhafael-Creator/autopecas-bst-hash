@@ -1,6 +1,6 @@
 # Autopeças: estoque com Hash e clientes com BST
 
-**Integrante:** Rhafael Sousa Fernandes de Jesus. Projeto individual; se realizado em dupla, incluir o segundo integrante antes da entrega.
+**Integrante:** 
 
 **Disciplina:** Algoritmos e Estruturas de Dados II - UFV Campus Florestal. Professor Lucas Bragança da Silva.
 
