@@ -48,7 +48,7 @@ Inserções retornam 1 no sucesso, 0 para duplicata/dado inválido e -1 para fal
 
 ## Compilar e executar
 
-No Linux, instale GCC e Make. Python 3 é necessário somente para o teste do menu. O programa C não usa bibliotecas externas.
+No Linux, instale GCC e Make. O programa C não usa bibliotecas externas.
 
 ```sh
 make
