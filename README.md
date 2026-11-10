@@ -55,7 +55,7 @@ A listagem visita todos os clientes, com custo O(n).
 | `tests/teste.c` | Testes do cadastro e da BST em C |
 | `tests/experimento.c` | Comparação das ordens de inserção em C |
 | `resultados/` | Registros da validação e do experimento |
-| `PROPOSTA.md` | Proposta e integrantes |
+| `PROPOSTA.md` | Proposta |
 | `Makefile` | Atalhos opcionais de compilação |
 
 ## Retornos das funções
