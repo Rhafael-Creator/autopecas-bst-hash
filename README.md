@@ -115,7 +115,7 @@ Sem persistência, histórico de vendas, reposição pelo menu, emissão fiscal 
 
 ## Referências e apoio
 
-Requisitos: enunciado “Trabalho Prático 1 - Aplicação com Estruturas de Dados”, professor Lucas Bragança da Silva, fornecido com a atividade. O ZIP de laboratório enviado foi consultado como contexto, mas não incorporado: continha uma implementação incompleta. Implementação e documentação produzidas com apoio de IA generativa (ChatGPT); o estudante deve revisar, compreender e justificar a versão entregue e observar a orientação do professor sobre esse uso.
+
 
 ## Apresentação e entrega
 
