@@ -1,12 +1,11 @@
-Validacao local - 10/11/2026
+Validacao do cadastro de clientes - 10/11/2026
 
-make test: compilacao com -Wall -Wextra -Wpedantic -Werror, sem avisos.
-BST: buscas, duplicatas, alturas, ordens, remocoes e liberacao OK.
-HASH: colisoes, distribuicao, carga, buscas, remocoes e liberacao OK.
-VENDA: validacao e atualizacao de estoque OK.
-Menu: cadastros, nomes com espacos, ordem dos IDs, venda, consulta,
-      entrada invalida, linha longa e fim da entrada OK.
-make experimento: alturas e metricas iguais aos resultados anteriores.
-ASAN_OPTIONS=detect_leaks=0 ./build/teste_sanitize: passou.
-make sanitize: LeakSanitizer nao executou por incompatibilidade com ptrace.
-A ausencia de vazamentos nao foi comprovada por esse detector.
+Compilacao C11 com -Wall -Wextra -Wpedantic -Werror: OK.
+make test: todos os testes da BST passaram.
+make experimento: alturas 126, 126 e 6 para as tres ordens.
+Menu: cadastro com nomes compostos, ID duplicado, busca, remocao,
+listagem em ordem, entrada invalida, opcao removida e fim da entrada: OK.
+AddressSanitizer e UndefinedBehaviorSanitizer com detect_leaks=0: OK.
+make sanitize: LeakSanitizer nao funciona sob ptrace neste ambiente.
+A verificacao de vazamentos com detect_leaks=1 permanece pendente
+em um ambiente compativel.

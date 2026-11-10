@@ -1,94 +1,74 @@
-# Autopecas em C: clientes e estoque
+# Autopeças em C: cadastro de clientes
 
-Sistema de terminal para cadastrar, buscar, remover e listar clientes e pecas.
-Tambem realiza vendas, diminuindo a quantidade da peca quando o cliente existe e ha estoque suficiente.
+Sistema de terminal para cadastrar, buscar, remover e listar clientes de uma autopeça.
+Os clientes são organizados por ID em uma árvore binária de busca (BST).
 
 ## Como compilar
 
-O projeto precisa de GCC. Na pasta do projeto, execute:
+Na pasta do projeto, com GCC instalado:
 
 ```sh
-gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/main.c src/clientes.c src/estoque.c src/sistema.c -o autopecas
+gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/main.c src/clientes.c -o autopecas
 ./autopecas
 ```
 
-Se tiver Make instalado, tambem pode usar:
+Se tiver Make instalado, também pode executar `make` e `./build/autopecas`.
 
-```sh
-make
-./build/autopecas
-```
+O sistema inicia vazio. Os dados ficam na memória e são perdidos ao sair.
 
-O sistema inicia vazio. Os dados ficam na memoria e sao perdidos ao sair.
-O preco e informado em centavos: 1850 significa R$ 18,50.
+## Menu
 
-## Por onde comecar a estudar
+- 1: cadastrar cliente (ID e nome).
+- 2: buscar cliente pelo ID.
+- 3: remover cliente pelo ID.
+- 4: listar clientes em ordem crescente de ID.
+- 0: sair e liberar a memória.
 
-1. `include/clientes.h` e `include/estoque.h`: veja os campos de cada registro e as funcoes disponiveis.
-2. `src/clientes.c`: acompanhe a insercao e a busca na arvore.
-3. `src/estoque.c`: acompanhe o calculo da posicao e o percurso da lista.
-4. `src/sistema.c`: veja como uma venda liga as duas estruturas.
-5. `src/main.c`: veja a leitura dos dados e o menu com `switch`.
+IDs devem ser positivos e únicos. Nomes aceitam espaços e até 79 bytes.
+A leitura usa `fgets` para nomes e `strtol` para validar números.
 
-As funcoes usam nomes descritivos, blocos com chaves e comentarios nos passos das estruturas.
-O menu separa o cadastro de clientes e pecas em funcoes menores.
-A leitura usa `fgets` para aceitar nomes com espacos e `strtol` para validar numeros.
+## Por onde começar a estudar
 
-## Estruturas de dados
+1. `include/clientes.h`: campos do cliente, árvore e funções disponíveis.
+2. `src/clientes.c`: implementação da árvore.
+3. `src/main.c`: leitura dos dados e menu com `switch`.
 
-### Clientes: arvore binaria de busca (BST)
+Cada nó guarda um cliente e dois ponteiros: esquerda e direita.
+IDs menores ficam à esquerda e maiores à direita.
 
-Cada no guarda um cliente e dois ponteiros: esquerda e direita.
-IDs menores ficam a esquerda; maiores ficam a direita. IDs repetidos sao rejeitados.
+- Inserção e busca: percorrem a árvore comparando o ID.
+- Listagem em ordem: visita esquerda, raiz e direita.
+- Remoção de folha: retira o nó.
+- Remoção com um filho: liga o pai diretamente ao filho.
+- Remoção com dois filhos: copia o menor registro da subárvore direita e remove esse sucessor.
 
-- Busca e insercao: percorrem a arvore comparando o ID.
-- Listagem: visita esquerda, raiz e direita, exibindo IDs em ordem crescente.
-- Remocao de folha: retira o no.
-- Remocao com um filho: liga o pai diretamente ao filho.
-- Remocao com dois filhos: copia o menor registro da direita e remove esse sucessor.
+Busca, inserção e remoção custam O(h), sendo h a altura da árvore.
+Uma árvore bem distribuída tem altura O(log n), mas esta BST não se balanceia e pode chegar a O(n).
+A altura é contada em arestas: árvore vazia = -1 e folha = 0.
+A listagem visita todos os clientes, com custo O(n).
 
-Busca, insercao e remocao custam O(h), sendo h a altura. Uma arvore bem distribuida tem altura O(log n), mas esta BST nao se balanceia e pode chegar a O(n).
-A altura e contada em arestas: vazia = -1 e folha = 0.
+## Organização
 
-### Pecas: tabela hash com listas encadeadas
-
-A posicao e calculada por `codigo % capacidade`. No menu, a capacidade e 11.
-Cada posicao (balde) aponta para uma lista. Se dois codigos caem na mesma posicao, ambos ficam nessa lista: isso resolve uma colisao.
-
-- Insercao: confere duplicata e coloca a peca no inicio da lista.
-- Busca: calcula a posicao e percorre apenas aquela lista.
-- Remocao: usa os ponteiros anterior e atual para religar a lista.
-- Venda: diminui a quantidade somente quando a retirada e valida.
-
-Com boa distribuicao, o custo esperado e O(1 + alfa), onde alfa = quantidade / capacidade.
-No pior caso, todas as pecas ficam na mesma lista e o custo e O(n).
-A tabela tem tamanho fixo; nao faz redimensionamento.
-
-## Organizacao
-
-| Arquivo ou pasta | Conteudo |
+| Arquivo | Conteúdo |
 |---|---|
-| `include/` | Tipos e declaracoes das funcoes |
+| `include/clientes.h` | Tipos e declarações |
 | `src/clientes.c` | BST de clientes |
-| `src/estoque.c` | Hash de pecas |
-| `src/sistema.c` | Validacao da venda |
 | `src/main.c` | Menu e leitura |
-| `tests/teste.c` | Testes das estruturas e vendas em C |
-| `tests/experimento.c` | Comparacao de alturas e colisoes em C |
-| `resultados/` | Registros de validacao e experimento |
+| `tests/teste.c` | Testes do cadastro e da BST em C |
+| `tests/experimento.c` | Comparação das ordens de inserção em C |
+| `resultados/` | Registros da validação e do experimento |
 | `PROPOSTA.md` | Proposta e integrantes |
-| `Makefile` | Atalhos opcionais de compilacao |
+| `Makefile` | Atalhos opcionais de compilação |
 
-## Retornos das funcoes
+## Retornos das funções
 
-Insercao: 1 indica sucesso, 0 indica dado invalido ou duplicado e -1 indica falta de memoria.
-Busca: retorna um ponteiro para o registro ou NULL quando nao encontra.
-Remocao: retorna 1 se removeu e 0 se nao encontrou.
-Venda: retorna 1 no sucesso, 0 se o cliente nao existe e -1 se a peca ou a quantidade nao permite a venda.
-Uma venda rejeitada nao altera o estoque. Quantidade zero nao remove o cadastro da peca.
+Inserção: 1 indica sucesso, 0 indica dado inválido ou duplicado e -1 indica falta de memória.
+Busca: retorna um ponteiro para o cliente ou NULL quando não encontra.
+Remoção: retorna 1 se removeu e 0 se não encontrou.
 
-As estruturas devem ser inicializadas antes do uso e destruidas ao terminar.
-Ponteiros retornados pelas buscas apontam para registros internos: nao devem ser liberados pelo chamador nem usados apos remocoes ou destruicao.
+Inicialize a árvore antes de usar e destrua ao terminar.
+Os ponteiros retornados pelas buscas são internos: não devem ser liberados pelo chamador nem usados após remoções ou destruição.
+O contador de comparações é opcional; passe NULL quando não precisar dele.
 
 ## Testes e experimento
 
@@ -98,30 +78,26 @@ make experimento
 make sanitize
 ```
 
-Os testes usam `assert` e verificam duplicatas, buscas, remocoes da BST, colisoes da hash e vendas validas e invalidas. Nao compile os testes com `-DNDEBUG`.
-O experimento usa os mesmos 127 IDs em ordens crescente, decrescente e de medianas, e 100 pecas com codigos distribuidos ou concentrados em uma posicao.
-Os resultados completos ficam em `resultados/experimento.txt`.
+Os testes usam `assert` e verificam árvore vazia, buscas, duplicatas, IDs inválidos, alturas, remoções de nós com zero, um e dois filhos e liberação de memória.
+Não compile os testes com `-DNDEBUG`.
 
-Na BST, as ordens sequenciais geram altura 126; a ordem de medianas gera altura 6.
-Na hash, os codigos de 1 a 100 geram maior lista de tamanho 10; codigos com o mesmo resto geram uma lista de tamanho 100.
-Isso mostra como a ordem de insercao e a distribuicao afetam as buscas.
-O contador de comparacoes das buscas e opcional: passe NULL quando nao precisar dele.
+O experimento insere os mesmos 127 IDs em ordem crescente, decrescente e de medianas.
+As ordens sequenciais geram altura 126; a ordem de medianas gera altura 6.
+Isso mostra como a ordem de inserção afeta o custo das buscas, sem implementar balanceamento automático.
+Os resultados ficam em `resultados/experimento.txt`.
 
-A verificacao do menu inclui nomes com espacos, entrada invalida, listagem em ordem, venda e fim da entrada.
-O registro em `resultados/validacao.txt` informa quais verificacoes foram executadas e as limitacoes do detector de vazamentos neste ambiente.
+## Demonstração
 
-## Demonstracao
-
-1. Cadastre o cliente 20, com nome Ana Silva.
-2. Cadastre a peca 1, Filtro de oleo, com 10 unidades e preco 1850.
-3. Venda 3 unidades da peca 1 para o cliente 20.
-4. Consulte a peca: devem restar 7 unidades.
-5. Tente vender para um cliente inexistente: o estoque deve permanecer igual.
+1. Cadastre o cliente 20, Ana Silva.
+2. Cadastre o cliente 10, Bruno Souza.
+3. Cadastre o cliente 30, Carla Lima.
+4. Liste os clientes: os IDs aparecem como 10, 20 e 30.
+5. Busque o ID 20: o programa mostra Ana Silva.
+6. Tente cadastrar o ID 20 novamente: o cadastro é rejeitado.
+7. Remova o ID 20 e liste novamente: restam 10 e 30.
 
 ## Escopo do trabalho
 
-A hash e a estrutura principal; a BST e auxiliar. A proposta deve ser validada pelo professor.
-O sistema nao salva arquivos de dados, nao emite nota fiscal e nao registra historico financeiro.
-Nomes podem ter ate 79 bytes. IDs e codigos devem ser positivos.
-Listagem e altura da BST usam recursao, que tem limite de pilha para arvores muito grandes.
-A entrega e os slides devem seguir as orientacoes da disciplina.
+O projeto é um cadastro de clientes com BST e não salva os dados em arquivo.
+Listagem e cálculo de altura usam recursão, sujeita ao limite de pilha em árvores muito grandes.
+A proposta revisada deve ser validada pelo professor, e a entrega e os slides devem seguir as orientações da disciplina.

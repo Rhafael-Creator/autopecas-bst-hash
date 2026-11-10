@@ -1,5 +1,4 @@
 #include "clientes.h"
-#include "estoque.h"
 #include <assert.h>
 #include <stdio.h>
 static void inserir_meios(Clientes *a, int inicio, int fim) {
@@ -23,22 +22,6 @@ int main(void) {
         assert(!clientes_buscar(&a, 128, &comp));
         printf("%s,127,%d,%.4f,%zu\n", modo == 0 ? "crescente" : modo == 1 ? "decrescente" : "medianas", clientes_altura(&a), total/127.0, comp);
         clientes_destruir(&a);
-    }
-    puts("HASH: 100 pecas; colisao = insercao em balde ja ocupado");
-    puts("padrao,m,n,carga,colisoes,maior_lista,media_busca_existente,distribuicao");
-    for (int modo = 0; modo < 2; modo++) {
-        Estoque t; assert(estoque_iniciar(&t, 11)); size_t colisoes = 0, maior = 0, total = 0;
-        for (int i = 0; i < 100; i++) {
-            int codigo = modo ? 1 + 11*i : 1+i;
-            if (estoque_tamanho_balde(&t, (size_t)codigo % 11)) colisoes++;
-            Peca p = {.codigo = codigo, .nome = "Filtro", .quantidade = 1, .preco_centavos = 100};
-            assert(estoque_inserir(&t, p) == 1);
-        }
-        for (int i = 0; i < 100; i++) { size_t c; assert(estoque_buscar(&t, modo ? 1+11*i : 1+i, &c)); total += c; }
-        for (size_t i = 0; i < 11; i++) { size_t n = estoque_tamanho_balde(&t, i); if (n > maior) maior = n; }
-        printf("%s,11,100,%.4f,%zu,%zu,%.4f,", modo ? "mesmo_resto" : "sequencial", estoque_fator_carga(&t), colisoes, maior, total/100.0);
-        for (size_t i = 0; i < 11; i++) printf("%s%zu", i ? ";" : "", estoque_tamanho_balde(&t, i));
-        puts(""); estoque_destruir(&t);
     }
     return 0;
 }

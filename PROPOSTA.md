@@ -1,13 +1,17 @@
 # Proposta
 
-Integrante: Rhafael Sousa Fernandes-6591; Luan Barros Reis-6576.
+Integrantes: Rhafael Sousa Fernandes-6591; Luan Barros Reis-6576.
 
-Título: Autopeças - controle de estoque e cadastro de clientes.
+Título: Autopeças - cadastro de clientes com árvore binária de busca.
 
-Uma pequena autopeças precisa consultar peças por código, manter as quantidades disponíveis e verificar se o comprador está cadastrado antes de retirar produtos. A aplicação será executada no terminal e manterá dados em memória durante a sessão.
+Uma pequena autopeças precisa cadastrar seus clientes, consultar os dados pelo ID, remover cadastros e listar os clientes em ordem de identificação. A aplicação será executada no terminal, em C, e manterá os dados em memória durante a sessão.
 
-Estrutura principal: tabela hash com encadeamento separado para as peças, indexadas por código. Estrutura auxiliar proposta: BST para clientes, indexados por ID interno.
+Estrutura principal: árvore binária de busca (BST), com clientes indexados por ID interno. Cada cliente possui ID positivo e nome; IDs repetidos não são aceitos.
 
-Operações: inicialização, inserção, busca, remoção, listagem e liberação de memória; retirada de estoque após validação do cliente. Métricas: fator de carga, colisões, distribuição e comparações na hash; altura e comparações na BST sob diferentes ordens de inserção.
+Operações: inicialização, inserção, busca, remoção, listagem em ordem e liberação de memória.
 
-Justificativa: a hash atende consultas exatas frequentes de estoque; a BST permite verificar clientes e listar seus IDs em ordem.
+Métricas: altura da árvore e quantidade de comparações nas buscas, usando os mesmos IDs inseridos em ordem crescente, decrescente e de medianas.
+
+Justificativa: a BST organiza os clientes por ID e permite listá-los em ordem. O experimento mostra como a ordem de inserção influencia a altura e o custo das buscas, pois a árvore não possui balanceamento automático.
+
+A proposta revisada deve ser validada pelo professor.

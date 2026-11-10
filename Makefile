@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -Werror -g
 CPPFLAGS = -Iinclude
-COMMON = src/clientes.c src/estoque.c src/sistema.c
+COMMON = src/clientes.c
 .PHONY: all test experimento sanitize clean
 all: build/autopecas
 build:

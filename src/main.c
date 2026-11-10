@@ -1,4 +1,4 @@
-#include "sistema.h"
+#include "clientes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,16 +48,11 @@ static int ler_numero(const char *mensagem, int *valor) {
 }
 
 static void mostrar_menu(void) {
-    puts("\nAUTOPECAS");
+    puts("\nAUTOPECAS - CADASTRO DE CLIENTES");
     puts("1 Cadastrar cliente");
     puts("2 Buscar cliente");
     puts("3 Remover cliente");
     puts("4 Listar clientes");
-    puts("5 Cadastrar peca");
-    puts("6 Buscar peca");
-    puts("7 Remover peca");
-    puts("8 Listar estoque");
-    puts("9 Vender");
     puts("0 Sair");
 }
 
@@ -86,46 +81,11 @@ static int cadastrar_cliente(Clientes *clientes) {
     return 1;
 }
 
-static int cadastrar_peca(Estoque *estoque) {
-    Peca peca = {0};
-    int preco;
-    if (!ler_numero("Codigo peca: ", &peca.codigo)) {
-        return 0;
-    }
-    int resultado = ler_linha("Nome: ", peca.nome, sizeof(peca.nome));
-    if (resultado == 0) {
-        return 0;
-    }
-    if (resultado == -1) {
-        puts("Nome longo demais.");
-        return 1;
-    }
-    if (!ler_numero("Quantidade: ", &peca.quantidade) ||
-        !ler_numero("Preco em centavos (1850 = R$18,50): ", &preco)) {
-        return 0;
-    }
-    peca.preco_centavos = preco;
-    resultado = estoque_inserir(estoque, peca);
-    if (resultado == 1) {
-        puts("Peca cadastrada.");
-    } else if (resultado == -1) {
-        puts("Sem memoria.");
-    } else {
-        puts("Codigo duplicado ou dados invalidos.");
-    }
-    return 1;
-}
-
 int main(void) {
     Clientes clientes;
-    Estoque estoque;
-    int opcao, id, codigo, quantidade;
+    int opcao, id;
     int continuar = 1;
     clientes_iniciar(&clientes);
-    if (!estoque_iniciar(&estoque, 11)) {
-        fputs("Sem memoria.\n", stderr);
-        return 1;
-    }
 
     while (continuar) {
         mostrar_menu();
@@ -166,60 +126,10 @@ int main(void) {
             case 4:
                 clientes_listar(&clientes);
                 break;
-            case 5:
-                continuar = cadastrar_peca(&estoque);
-                break;
-            case 6: {
-                if (!ler_numero("Codigo peca: ", &codigo)) {
-                    continuar = 0;
-                    break;
-                }
-                const Peca *peca = estoque_buscar(&estoque, codigo, NULL);
-                if (peca != NULL) {
-                    printf("%s | qtd %d | R$ %ld,%02ld\n", peca->nome,
-                           peca->quantidade, peca->preco_centavos / 100,
-                           peca->preco_centavos % 100);
-                } else {
-                    puts("Peca nao encontrada.");
-                }
-                break;
-            }
-            case 7:
-                if (!ler_numero("Codigo peca: ", &codigo)) {
-                    continuar = 0;
-                    break;
-                }
-                if (estoque_remover(&estoque, codigo)) {
-                    puts("Peca removida.");
-                } else {
-                    puts("Peca nao encontrada.");
-                }
-                break;
-            case 8:
-                estoque_listar(&estoque);
-                break;
-            case 9: {
-                if (!ler_numero("ID cliente: ", &id) ||
-                    !ler_numero("Codigo peca: ", &codigo) ||
-                    !ler_numero("Quantidade: ", &quantidade)) {
-                    continuar = 0;
-                    break;
-                }
-                int resultado = sistema_vender(&clientes, &estoque, id, codigo, quantidade);
-                if (resultado == 1) {
-                    puts("Venda realizada; estoque atualizado.");
-                } else if (resultado == 0) {
-                    puts("Cliente nao cadastrado.");
-                } else {
-                    puts("Peca ausente ou quantidade invalida/insuficiente.");
-                }
-                break;
-            }
             default:
                 puts("Opcao invalida.");
         }
     }
     clientes_destruir(&clientes);
-    estoque_destruir(&estoque);
     return 0;
 }
