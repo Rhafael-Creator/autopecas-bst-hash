@@ -27,8 +27,6 @@ O sistema inicia vazio. Os dados ficam na memória e são perdidos ao sair.
 IDs devem ser positivos e únicos. Nomes aceitam espaços e até 79 bytes.
 A leitura usa `fgets` para nomes e `strtol` para validar números.
 
-## Por onde começar a estudar
-
 1. `include/clientes.h`: campos do cliente, árvore e funções disponíveis.
 2. `src/clientes.c`: implementação da árvore.
 3. `src/main.c`: leitura dos dados e menu com `switch`.
@@ -100,4 +98,3 @@ Os resultados ficam em `resultados/experimento.txt`.
 
 O projeto é um cadastro de clientes com BST e não salva os dados em arquivo.
 Listagem e cálculo de altura usam recursão, sujeita ao limite de pilha em árvores muito grandes.
-A proposta revisada deve ser validada pelo professor, e a entrega e os slides devem seguir as orientações da disciplina.
