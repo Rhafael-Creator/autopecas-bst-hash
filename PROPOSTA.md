@@ -1,4 +1,4 @@
-# Proposta para aprovação
+# Proposta
 
 Integrante: Rhafael Sousa Fernandes-6591; Luan Barros Reis-6576.
 
