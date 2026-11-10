@@ -13,5 +13,3 @@ Operações: inicialização, inserção, busca, remoção, listagem em ordem e 
 Métricas: altura da árvore e quantidade de comparações nas buscas, usando os mesmos IDs inseridos em ordem crescente, decrescente e de medianas.
 
 Justificativa: a BST organiza os clientes por ID e permite listá-los em ordem. O experimento mostra como a ordem de inserção influencia a altura e o custo das buscas, pois a árvore não possui balanceamento automático.
-
-A proposta revisada deve ser validada pelo professor.
