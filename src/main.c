@@ -4,70 +4,222 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-/* Toda entrada passa por fgets: evita scanf misturado com leitura de nomes. */
-static int linha(const char *mensagem, char *s, size_t tamanho) {
+
+/* Retorna 1 se leu, 0 no fim da entrada e -1 se a linha e longa. */
+static int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
     printf("%s", mensagem);
-    if (!fgets(s, (int)tamanho, stdin)) return 0;
-    char *fim = strchr(s, '\n');
-    if (fim) *fim = '\0';
-    else { int c; while ((c = getchar()) != '\n' && c != EOF) {} return -1; }
-    return 1;
+    if (fgets(texto, (int)tamanho, stdin) == NULL) {
+        return 0;
+    }
+    char *fim = strchr(texto, '\n');
+    if (fim != NULL) {
+        *fim = '\0';
+        return 1;
+    }
+    int caractere;
+    while ((caractere = getchar()) != '\n' && caractere != EOF) {
+        /* Descarta o restante de uma linha longa. */
+    }
+    return -1;
 }
-static int numero(const char *mensagem, int *valor) {
-    char s[80], *fim;
+
+static int ler_numero(const char *mensagem, int *valor) {
+    char texto[80];
+    char *fim;
     while (1) {
-        int r = linha(mensagem, s, sizeof s);
-        if (!r) return 0;
-        if (r < 0) { puts("Entrada longa demais."); continue; }
-        errno = 0; long n = strtol(s, &fim, 10);
-        if (!errno && fim != s && *fim == '\0' && n >= 0 && n <= INT_MAX) { *valor = (int)n; return 1; }
+        int resultado = ler_linha(mensagem, texto, sizeof(texto));
+        if (resultado == 0) {
+            return 0;
+        }
+        if (resultado == -1) {
+            puts("Entrada longa demais.");
+            continue;
+        }
+        /* strtol permite detectar letras e numeros fora do limite de int. */
+        errno = 0;
+        long numero = strtol(texto, &fim, 10);
+        if (errno == 0 && fim != texto && *fim == '\0' &&
+            numero >= 0 && numero <= INT_MAX) {
+            *valor = (int)numero;
+            return 1;
+        }
         puts("Informe um inteiro nao negativo.");
     }
 }
-int main(void) {
-    Clientes clientes; Estoque estoque;
-    clientes_iniciar(&clientes);
-    if (!estoque_iniciar(&estoque, 11)) { fputs("Sem memoria.\n", stderr); return 1; }
-    int op, id, codigo, qtd, preco;
-    while (1) {
-        puts("\nAUTOPECAS\n1 Cadastrar cliente\n2 Buscar cliente\n3 Remover cliente\n4 Listar clientes\n5 Cadastrar peca\n6 Buscar peca\n7 Remover peca\n8 Listar estoque\n9 Vender\n0 Sair");
-        if (!numero("Opcao: ", &op) || op == 0) break;
-        if (op >= 1 && op <= 3) {
-            if (!numero("ID cliente: ", &id)) break;
-            if (op == 1) {
-                Cliente c = {.id = id};
-                int r = linha("Nome: ", c.nome, sizeof c.nome);
-                if (!r) break;
-                if (r < 0) { puts("Nome longo demais."); continue; }
-                r = clientes_inserir(&clientes, c);
-                puts(r == 1 ? "Cliente cadastrado." : r == -1 ? "Sem memoria." : "ID duplicado ou dados invalidos.");
-            } else if (op == 2) {
-                const Cliente *c = clientes_buscar(&clientes, id, NULL);
-                if (c) printf("%d | %s\n", c->id, c->nome); else puts("Cliente nao encontrado.");
-            } else puts(clientes_remover(&clientes, id) ? "Cliente removido." : "Cliente nao encontrado.");
-        } else if (op == 4) clientes_listar(&clientes);
-        else if (op >= 5 && op <= 7) {
-            if (!numero("Codigo peca: ", &codigo)) break;
-            if (op == 5) {
-                Peca p = {.codigo = codigo};
-                int r = linha("Nome: ", p.nome, sizeof p.nome);
-                if (!r) break;
-                if (r < 0) { puts("Nome longo demais."); continue; }
-                if (!numero("Quantidade: ", &qtd) || !numero("Preco em centavos (1850 = R$18,50): ", &preco)) break;
-                p.quantidade = qtd; p.preco_centavos = preco;
-                r = estoque_inserir(&estoque, p);
-                puts(r == 1 ? "Peca cadastrada." : r == -1 ? "Sem memoria." : "Codigo duplicado ou dados invalidos.");
-            } else if (op == 6) {
-                const Peca *p = estoque_buscar(&estoque, codigo, NULL);
-                if (p) printf("%s | qtd %d | R$ %ld,%02ld\n", p->nome, p->quantidade, p->preco_centavos / 100, p->preco_centavos % 100);
-                else puts("Peca nao encontrada.");
-            } else puts(estoque_remover(&estoque, codigo) ? "Peca removida." : "Peca nao encontrada.");
-        } else if (op == 8) estoque_listar(&estoque);
-        else if (op == 9) {
-            if (!numero("ID cliente: ", &id) || !numero("Codigo peca: ", &codigo) || !numero("Quantidade: ", &qtd)) break;
-            int r = sistema_vender(&clientes, &estoque, id, codigo, qtd);
-            puts(r == 1 ? "Venda realizada; estoque atualizado." : r == 0 ? "Cliente nao cadastrado." : "Peca ausente ou quantidade invalida/insuficiente.");
-        } else puts("Opcao invalida.");
+
+static void mostrar_menu(void) {
+    puts("\nAUTOPECAS");
+    puts("1 Cadastrar cliente");
+    puts("2 Buscar cliente");
+    puts("3 Remover cliente");
+    puts("4 Listar clientes");
+    puts("5 Cadastrar peca");
+    puts("6 Buscar peca");
+    puts("7 Remover peca");
+    puts("8 Listar estoque");
+    puts("9 Vender");
+    puts("0 Sair");
+}
+
+/* Os cadastros retornam 0 apenas quando a entrada termina. */
+static int cadastrar_cliente(Clientes *clientes) {
+    Cliente cliente = {0};
+    if (!ler_numero("ID cliente: ", &cliente.id)) {
+        return 0;
     }
-    clientes_destruir(&clientes); estoque_destruir(&estoque); return 0;
+    int resultado = ler_linha("Nome: ", cliente.nome, sizeof(cliente.nome));
+    if (resultado == 0) {
+        return 0;
+    }
+    if (resultado == -1) {
+        puts("Nome longo demais.");
+        return 1;
+    }
+    resultado = clientes_inserir(clientes, cliente);
+    if (resultado == 1) {
+        puts("Cliente cadastrado.");
+    } else if (resultado == -1) {
+        puts("Sem memoria.");
+    } else {
+        puts("ID duplicado ou dados invalidos.");
+    }
+    return 1;
+}
+
+static int cadastrar_peca(Estoque *estoque) {
+    Peca peca = {0};
+    int preco;
+    if (!ler_numero("Codigo peca: ", &peca.codigo)) {
+        return 0;
+    }
+    int resultado = ler_linha("Nome: ", peca.nome, sizeof(peca.nome));
+    if (resultado == 0) {
+        return 0;
+    }
+    if (resultado == -1) {
+        puts("Nome longo demais.");
+        return 1;
+    }
+    if (!ler_numero("Quantidade: ", &peca.quantidade) ||
+        !ler_numero("Preco em centavos (1850 = R$18,50): ", &preco)) {
+        return 0;
+    }
+    peca.preco_centavos = preco;
+    resultado = estoque_inserir(estoque, peca);
+    if (resultado == 1) {
+        puts("Peca cadastrada.");
+    } else if (resultado == -1) {
+        puts("Sem memoria.");
+    } else {
+        puts("Codigo duplicado ou dados invalidos.");
+    }
+    return 1;
+}
+
+int main(void) {
+    Clientes clientes;
+    Estoque estoque;
+    int opcao, id, codigo, quantidade;
+    int continuar = 1;
+    clientes_iniciar(&clientes);
+    if (!estoque_iniciar(&estoque, 11)) {
+        fputs("Sem memoria.\n", stderr);
+        return 1;
+    }
+
+    while (continuar) {
+        mostrar_menu();
+        if (!ler_numero("Opcao: ", &opcao)) {
+            break;
+        }
+        switch (opcao) {
+            case 0:
+                continuar = 0;
+                break;
+            case 1:
+                continuar = cadastrar_cliente(&clientes);
+                break;
+            case 2: {
+                if (!ler_numero("ID cliente: ", &id)) {
+                    continuar = 0;
+                    break;
+                }
+                const Cliente *cliente = clientes_buscar(&clientes, id, NULL);
+                if (cliente != NULL) {
+                    printf("%d | %s\n", cliente->id, cliente->nome);
+                } else {
+                    puts("Cliente nao encontrado.");
+                }
+                break;
+            }
+            case 3:
+                if (!ler_numero("ID cliente: ", &id)) {
+                    continuar = 0;
+                    break;
+                }
+                if (clientes_remover(&clientes, id)) {
+                    puts("Cliente removido.");
+                } else {
+                    puts("Cliente nao encontrado.");
+                }
+                break;
+            case 4:
+                clientes_listar(&clientes);
+                break;
+            case 5:
+                continuar = cadastrar_peca(&estoque);
+                break;
+            case 6: {
+                if (!ler_numero("Codigo peca: ", &codigo)) {
+                    continuar = 0;
+                    break;
+                }
+                const Peca *peca = estoque_buscar(&estoque, codigo, NULL);
+                if (peca != NULL) {
+                    printf("%s | qtd %d | R$ %ld,%02ld\n", peca->nome,
+                           peca->quantidade, peca->preco_centavos / 100,
+                           peca->preco_centavos % 100);
+                } else {
+                    puts("Peca nao encontrada.");
+                }
+                break;
+            }
+            case 7:
+                if (!ler_numero("Codigo peca: ", &codigo)) {
+                    continuar = 0;
+                    break;
+                }
+                if (estoque_remover(&estoque, codigo)) {
+                    puts("Peca removida.");
+                } else {
+                    puts("Peca nao encontrada.");
+                }
+                break;
+            case 8:
+                estoque_listar(&estoque);
+                break;
+            case 9: {
+                if (!ler_numero("ID cliente: ", &id) ||
+                    !ler_numero("Codigo peca: ", &codigo) ||
+                    !ler_numero("Quantidade: ", &quantidade)) {
+                    continuar = 0;
+                    break;
+                }
+                int resultado = sistema_vender(&clientes, &estoque, id, codigo, quantidade);
+                if (resultado == 1) {
+                    puts("Venda realizada; estoque atualizado.");
+                } else if (resultado == 0) {
+                    puts("Cliente nao cadastrado.");
+                } else {
+                    puts("Peca ausente ou quantidade invalida/insuficiente.");
+                }
+                break;
+            }
+            default:
+                puts("Opcao invalida.");
+        }
+    }
+    clientes_destruir(&clientes);
+    estoque_destruir(&estoque);
+    return 0;
 }

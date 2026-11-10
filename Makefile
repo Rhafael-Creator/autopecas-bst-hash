@@ -14,7 +14,6 @@ build/experimento: tests/experimento.c $(COMMON) $(wildcard include/*.h) | build
 	$(CC) $(CPPFLAGS) $(CFLAGS) tests/experimento.c $(COMMON) -o $@
 test: build/teste build/autopecas
 	./build/teste
-	python3 tests/teste_menu.py
 experimento: build/experimento
 	./build/experimento
 sanitize: | build

@@ -1,9 +1,16 @@
 #ifndef CLIENTES_H
 #define CLIENTES_H
 #include <stddef.h>
-typedef struct { int id; char nome[80]; } Cliente;
+
+typedef struct {
+    int id;
+    char nome[80];
+} Cliente;
 typedef struct NoCliente NoCliente;
-typedef struct { NoCliente *raiz; size_t quantidade; } Clientes;
+typedef struct {
+    NoCliente *raiz;
+    size_t quantidade;
+} Clientes;
 void clientes_iniciar(Clientes *a);
 /* Insercao: 1 sucesso, 0 duplicado/invalido, -1 falta de memoria. */
 int clientes_inserir(Clientes *a, Cliente c);

@@ -1,122 +1,127 @@
-# Autopeças: estoque com Hash e clientes com BST
+# Autopecas em C: clientes e estoque
 
-**Integrante:** 
+Sistema de terminal para cadastrar, buscar, remover e listar clientes e pecas.
+Tambem realiza vendas, diminuindo a quantidade da peca quando o cliente existe e ha estoque suficiente.
 
-**Disciplina:** Algoritmos e Estruturas de Dados II - UFV Campus Florestal. Professor Lucas Bragança da Silva.
+## Como compilar
 
-## Problema e proposta
+O projeto precisa de GCC. Na pasta do projeto, execute:
 
-Uma autopeças precisa localizar peças pelo código, controlar suas quantidades e verificar se o comprador está cadastrado. A aplicação de terminal permite cadastrar, consultar, remover e listar clientes e peças, além de realizar uma venda que reduz o estoque apenas após validar o cliente e a quantidade.
+```sh
+gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/main.c src/clientes.c src/estoque.c src/sistema.c -o autopecas
+./autopecas
+```
 
-A estrutura **principal é a tabela hash do inventário**. A BST é uma estrutura auxiliar para o cadastro de clientes. A proposta está em `PROPOSTA.md`, para aprovação prévia pelo professor, inclusive quanto ao uso das duas estruturas. Este repositório não comprova essa aprovação.
-
-## Escolha das estruturas
-
-Na hash, a operação mais importante é a busca exata por código. Não precisamos de busca por prefixo nem de estoque ordenado. Usamos `codigo % capacidade` e encadeamento separado: cada posição aponta para uma lista de peças. Códigos diferentes podem produzir a mesma posição; a lista resolve a colisão. Inserção na cabeça é simples, mas a checagem de duplicata percorre a lista.
-
-Com boa distribuição, busca, inserção com verificação e remoção custam O(1 + alfa), sendo alfa = n/m. No pior caso todos os códigos ficam na mesma lista e o custo é O(n). O número de posições é fixo (11 no menu), portanto não se promete custo constante quando o cadastro cresce. A listagem custa O(m+n). Uma AVL teria busca O(log n) no pior caso e percurso ordenado, mas exigiria rotações e controle de balanceamento. Para consulta exata de peças, a hash é adequada ao escopo.
-
-Clientes usam uma BST por ID inteiro positivo. IDs menores ficam à esquerda; maiores, à direita; IDs repetidos são rejeitados. O percurso em ordem lista os clientes em ordem crescente de ID, não de nome. Busca, inserção e remoção custam O(h), com altura h: O(log n) quando a árvore está bem distribuída e O(n) no pior caso. Uma AVL evitaria a degeneração, com implementação mais complexa. Uma hash também verificaria clientes, mas não produziria essa ordem naturalmente. O ID é interno; não armazenamos CPF ou dados reais.
-
-## TADs e operações
-
-Os tipos dos nós são incompletos nos cabeçalhos: a aplicação não acessa seus campos. Os contêineres guardam a raiz ou os baldes e as contagens. Eles devem ser manipulados pelas funções públicas, sem cópias rasas.
-
-- `clientes.h/.c`: inicialização, inserção, busca, remoção, altura, listagem e destruição.
-- `estoque.h/.c`: inicialização, inserção, busca, remoção, retirada de quantidade, listagem, métricas e destruição.
-- `sistema.h/.c`: integra as estruturas na venda.
-- `main.c`: menu, leitura e mensagens; não implementa operações dos nós.
-
-Na BST, remover uma folha libera o nó; com um filho, o pai passa a apontar para esse filho; com dois filhos, copia-se o registro inteiro do sucessor (menor da subárvore direita) e remove-se o sucessor. Na hash, a remoção reconecta o elo anterior ao próximo elemento antes de liberar o nó.
-
-Inserções retornam 1 no sucesso, 0 para duplicata/dado inválido e -1 para falta de memória. Buscas retornam ponteiro constante para o registro interno ou NULL. Esse ponteiro não deve ser usado depois de remover/destruir a estrutura; remoções na BST também podem substituir registros. `sistema_vender` retorna 1 no sucesso, 0 se o cliente não existe e -1 para peça ausente ou quantidade inválida/insuficiente. Nenhuma venda rejeitada altera o estoque. Quantidade zero mantém a peça cadastrada.
-
-## Organização
-
-| Caminho | Responsabilidade |
-|---|---|
-| include/ | Interfaces dos TADs e da venda |
-| src/ | Implementações e menu |
-| tests/teste.c | Casos funcionais com assert |
-| tests/teste_menu.py | Integração do executável |
-| tests/experimento.c | Experimento determinístico |
-| resultados/experimento.txt | Saída experimental coletada |
-| resultados/validacao.txt | Registro da execução local |
-| PROPOSTA.md | Texto para submeter ao professor |
-| Makefile | Compilação e execução das verificações |
-| .github/workflows/testes.yml | Verificações automáticas após publicação |
-
-## Compilar e executar
-
-No Linux, instale GCC e Make. O programa C não usa bibliotecas externas.
+Se tiver Make instalado, tambem pode usar:
 
 ```sh
 make
 ./build/autopecas
+```
+
+O sistema inicia vazio. Os dados ficam na memoria e sao perdidos ao sair.
+O preco e informado em centavos: 1850 significa R$ 18,50.
+
+## Por onde comecar a estudar
+
+1. `include/clientes.h` e `include/estoque.h`: veja os campos de cada registro e as funcoes disponiveis.
+2. `src/clientes.c`: acompanhe a insercao e a busca na arvore.
+3. `src/estoque.c`: acompanhe o calculo da posicao e o percurso da lista.
+4. `src/sistema.c`: veja como uma venda liga as duas estruturas.
+5. `src/main.c`: veja a leitura dos dados e o menu com `switch`.
+
+As funcoes usam nomes descritivos, blocos com chaves e comentarios nos passos das estruturas.
+O menu separa o cadastro de clientes e pecas em funcoes menores.
+A leitura usa `fgets` para aceitar nomes com espacos e `strtol` para validar numeros.
+
+## Estruturas de dados
+
+### Clientes: arvore binaria de busca (BST)
+
+Cada no guarda um cliente e dois ponteiros: esquerda e direita.
+IDs menores ficam a esquerda; maiores ficam a direita. IDs repetidos sao rejeitados.
+
+- Busca e insercao: percorrem a arvore comparando o ID.
+- Listagem: visita esquerda, raiz e direita, exibindo IDs em ordem crescente.
+- Remocao de folha: retira o no.
+- Remocao com um filho: liga o pai diretamente ao filho.
+- Remocao com dois filhos: copia o menor registro da direita e remove esse sucessor.
+
+Busca, insercao e remocao custam O(h), sendo h a altura. Uma arvore bem distribuida tem altura O(log n), mas esta BST nao se balanceia e pode chegar a O(n).
+A altura e contada em arestas: vazia = -1 e folha = 0.
+
+### Pecas: tabela hash com listas encadeadas
+
+A posicao e calculada por `codigo % capacidade`. No menu, a capacidade e 11.
+Cada posicao (balde) aponta para uma lista. Se dois codigos caem na mesma posicao, ambos ficam nessa lista: isso resolve uma colisao.
+
+- Insercao: confere duplicata e coloca a peca no inicio da lista.
+- Busca: calcula a posicao e percorre apenas aquela lista.
+- Remocao: usa os ponteiros anterior e atual para religar a lista.
+- Venda: diminui a quantidade somente quando a retirada e valida.
+
+Com boa distribuicao, o custo esperado e O(1 + alfa), onde alfa = quantidade / capacidade.
+No pior caso, todas as pecas ficam na mesma lista e o custo e O(n).
+A tabela tem tamanho fixo; nao faz redimensionamento.
+
+## Organizacao
+
+| Arquivo ou pasta | Conteudo |
+|---|---|
+| `include/` | Tipos e declaracoes das funcoes |
+| `src/clientes.c` | BST de clientes |
+| `src/estoque.c` | Hash de pecas |
+| `src/sistema.c` | Validacao da venda |
+| `src/main.c` | Menu e leitura |
+| `tests/teste.c` | Testes das estruturas e vendas em C |
+| `tests/experimento.c` | Comparacao de alturas e colisoes em C |
+| `resultados/` | Registros de validacao e experimento |
+| `PROPOSTA.md` | Proposta e integrantes |
+| `Makefile` | Atalhos opcionais de compilacao |
+
+## Retornos das funcoes
+
+Insercao: 1 indica sucesso, 0 indica dado invalido ou duplicado e -1 indica falta de memoria.
+Busca: retorna um ponteiro para o registro ou NULL quando nao encontra.
+Remocao: retorna 1 se removeu e 0 se nao encontrou.
+Venda: retorna 1 no sucesso, 0 se o cliente nao existe e -1 se a peca ou a quantidade nao permite a venda.
+Uma venda rejeitada nao altera o estoque. Quantidade zero nao remove o cadastro da peca.
+
+As estruturas devem ser inicializadas antes do uso e destruidas ao terminar.
+Ponteiros retornados pelas buscas apontam para registros internos: nao devem ser liberados pelo chamador nem usados apos remocoes ou destruicao.
+
+## Testes e experimento
+
+```sh
 make test
 make experimento
 make sanitize
 ```
 
-Compilação equivalente da aplicação:
+Os testes usam `assert` e verificam duplicatas, buscas, remocoes da BST, colisoes da hash e vendas validas e invalidas. Nao compile os testes com `-DNDEBUG`.
+O experimento usa os mesmos 127 IDs em ordens crescente, decrescente e de medianas, e 100 pecas com codigos distribuidos ou concentrados em uma posicao.
+Os resultados completos ficam em `resultados/experimento.txt`.
 
-```sh
-gcc -std=c11 -Wall -Wextra -Wpedantic -Werror -Iinclude src/main.c src/clientes.c src/estoque.c src/sistema.c -o autopecas
-```
+Na BST, as ordens sequenciais geram altura 126; a ordem de medianas gera altura 6.
+Na hash, os codigos de 1 a 100 geram maior lista de tamanho 10; codigos com o mesmo resto geram uma lista de tamanho 100.
+Isso mostra como a ordem de insercao e a distribuicao afetam as buscas.
+O contador de comparacoes das buscas e opcional: passe NULL quando nao precisar dele.
 
-O menu trabalha em memória: inicia vazio e perde os registros ao sair. Digite o preço em centavos: 1850 representa R$ 18,50. Exemplo de demonstração: cadastre cliente ID 20, peça código 1 com 10 unidades, venda 3 unidades ao cliente 20 e consulte a peça: restam 7. Tente vender para cliente inexistente e confira que nada é retirado.
+A verificacao do menu inclui nomes com espacos, entrada invalida, listagem em ordem, venda e fim da entrada.
+O registro em `resultados/validacao.txt` informa quais verificacoes foram executadas e as limitacoes do detector de vazamentos neste ambiente.
 
-## Testes conforme o enunciado
+## Demonstracao
 
-| Exigência | Evidência executável |
-|---|---|
-| Estruturas vazias e busca ausente | Testes iniciais de BST e hash |
-| Inserção e busca existente | Conferência de registros e contagens |
-| Remoção e liberação | Remoções, destruição e destruição repetida |
-| Ordens diferentes de inserção na BST | Crescente, decrescente e medianas |
-| Folha, um filho e dois filhos | Remoções de 10, 30 e 40 na árvore do teste |
-| Altura resultante | Vazia -1, sequencial 6 e medianas 2 com sete nós |
-| Colisões e busca com colisões | Códigos 1, 6, 11 e 16 em cinco baldes |
-| Remoção na hash | Início, meio, fim, último elemento e reinserção |
-| Distribuição e fator de carga | Tamanhos dos baldes e alfa conferidos |
-| Regras da aplicação | Venda válida, cliente ausente, peça ausente, falta de estoque, zero e negativo |
-| Interface | Nome com espaços, entrada inválida, ordem da listagem e fim de entrada |
+1. Cadastre o cliente 20, com nome Ana Silva.
+2. Cadastre a peca 1, Filtro de oleo, com 10 unidades e preco 1850.
+3. Venda 3 unidades da peca 1 para o cliente 20.
+4. Consulte a peca: devem restar 7 unidades.
+5. Tente vender para um cliente inexistente: o estoque deve permanecer igual.
 
-`assert` interrompe os testes se uma condição falhar; não compilar os testes com `-DNDEBUG`. Compilação local sem avisos com GCC, usando `-Werror`. Os testes funcionais e o teste do menu passaram. AddressSanitizer/UndefinedBehaviorSanitizer passaram com `ASAN_OPTIONS=detect_leaks=0`. LeakSanitizer com detecção de vazamentos habilitada não executou neste ambiente, pois informou incompatibilidade com ptrace; portanto **não foi comprovada ausência de vazamentos por esse detector**. `make sanitize` mantém a detecção habilitada para execução em máquina compatível. Os testes exercitam a liberação, mas isso não substitui o detector. A execução do GitHub Actions só pode ser confirmada depois de publicar.
+## Escopo do trabalho
 
-## Experimento reproduzível
-
-Execute `make experimento`. Não há aleatoriedade nem medição de tempo: cada comparação equivale a um nó visitado. Todas as buscas existentes são executadas uma vez. Altura é medida em arestas, com árvore vazia = -1.
-
-### BST: mesmos 127 IDs (1 a 127)
-
-| Ordem | Altura | Média de comparações em buscas existentes | Comparações para ID 128 ausente |
-|---|---:|---:|---:|
-| Crescente | 126 | 64,0000 | 127 |
-| Decrescente | 126 | 64,0000 | 1 |
-| Medianas recursivas | 6 | 6,0551 | 7 |
-
-A ordem altera a forma, embora as chaves sejam iguais. As duas ordens sequenciais degeneram a árvore; inserir medianas gera, para este conjunto, uma árvore perfeita. Isso não torna a implementação uma árvore balanceada automaticamente. A busca ausente depende da chave: 128 termina na raiz da árvore decrescente, mas percorre toda a crescente. Um único caso ausente não representa todas as buscas.
-
-### Hash: 100 peças, 11 posições
-
-Colisão é contada quando uma inserção bem-sucedida encontra um balde já ocupado; não representa o total de comparações.
-
-| Códigos | Fator de carga | Colisões | Maior lista | Média de comparações em buscas existentes |
-|---|---:|---:|---:|---:|
-| 1 a 100 | 9,0909 | 89 | 10 | 5,0500 |
-| 1 + 11i, i de 0 a 99 | 9,0909 | 99 | 100 | 50,5000 |
-
-Distribuição por posição 0 a 10: sequencial `[9,10,9,9,9,9,9,9,9,9,9]`; mesmo resto `[0,100,0,0,0,0,0,0,0,0,0]`. O fator de carga é igual, mas a distribuição muda bastante o custo. Alfa pode ser maior que 1 com encadeamento separado. O cenário concentrado ilustra o pior caso da função módulo; não é uma amostra de uso real. O tamanho pequeno da tabela foi deliberado para evidenciar colisões.
-
-## Limitações e melhorias
-
-Sem persistência, histórico de vendas, reposição pelo menu, emissão fiscal ou autenticação. A venda apenas valida e retira unidades; não gera cobrança nem total financeiro. Nomes têm no máximo 79 bytes e as chaves são inteiros positivos. A API pressupõe nomes terminados em zero, estruturas inicializadas e ponteiros válidos. Não se deve reinicializar uma estrutura preenchida sem destruí-la antes. A BST não se balanceia; altura e listagem são recursivas e podem esgotar a pilha em árvores enormes. A destruição da BST é iterativa, mas pode ser custosa pela sucessão de remoções. A hash não redimensiona. Melhorias possíveis: persistência em arquivos, rehash, AVL para clientes, reposição e registro de vendas. Falhas de alocação são tratadas, mas não foram simuladas nos testes.
-
-## Referências e apoio
-
-
-
-## Apresentação e entrega
-
-O enunciado também exige slides para apresentação de 8 a 10 minutos, enviados pelo Moodle/PVANet e contendo o link do repositório público. Este projeto não inclui slides. Roteiro sugerido: problema (1 min), estruturas e justificativa (2 min), arquitetura (1 min), demonstração (2 min), testes e métricas (2 min), limitações (1 min). Confirmar aprovação da proposta e identificação dos integrantes antes da entrega.
+A hash e a estrutura principal; a BST e auxiliar. A proposta deve ser validada pelo professor.
+O sistema nao salva arquivos de dados, nao emite nota fiscal e nao registra historico financeiro.
+Nomes podem ter ate 79 bytes. IDs e codigos devem ser positivos.
+Listagem e altura da BST usam recursao, que tem limite de pilha para arvores muito grandes.
+A entrega e os slides devem seguir as orientacoes da disciplina.
