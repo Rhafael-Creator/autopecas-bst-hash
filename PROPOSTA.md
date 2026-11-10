@@ -1,6 +1,6 @@
 # Proposta para aprovação
 
-Integrante: Rhafael Sousa Fernandes de Jesus.
+Integrante: Rhafael Sousa Fernandes-6591; Luan Barros Reis-6576.
 
 Título: Autopeças - controle de estoque e cadastro de clientes.
 
