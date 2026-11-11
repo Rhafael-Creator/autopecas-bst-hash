@@ -1,9 +1,6 @@
 #include "clientes.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <limits.h>
 
 /* Retorna 1 se leu, 0 no fim da entrada e -1 se a linha e longa. */
 static int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
@@ -23,27 +20,22 @@ static int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
     return -1;
 }
 
+/* Le o numero do texto. A letra extra ajuda a rejeitar entradas como 12abc. */
 static int ler_numero(const char *mensagem, int *valor) {
     char texto[80];
-    char *fim;
+    char extra;
+
     while (1) {
         int resultado = ler_linha(mensagem, texto, sizeof(texto));
         if (resultado == 0) {
             return 0;
         }
-        if (resultado == -1) {
-            puts("Entrada longa demais.");
-            continue;
-        }
-        /* strtol permite detectar letras e numeros fora do limite de int. */
-        errno = 0;
-        long numero = strtol(texto, &fim, 10);
-        if (errno == 0 && fim != texto && *fim == '\0' &&
-            numero >= 0 && numero <= INT_MAX) {
-            *valor = (int)numero;
+        /* Limita a leitura a 9 digitos para o numero caber em int. */
+        if (resultado == 1 && sscanf(texto, "%9d %c", valor, &extra) == 1 &&
+            *valor >= 0) {
             return 1;
         }
-        puts("Informe um inteiro nao negativo.");
+        puts("Informe um inteiro de 0 a 999999999.");
     }
 }
 
