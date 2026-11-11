@@ -1,15 +1,15 @@
 #include "clientes.h"
 #include <assert.h>
 #include <stdio.h>
-static void inserir_meios(Clientes *a, int inicio, int fim) {
+void inserir_meios(Clientes *a, int inicio, int fim) {
     if (inicio > fim) return;
     int meio = inicio + (fim - inicio) / 2;
     Cliente c = {.id = meio, .nome = "Experimento"}; assert(clientes_inserir(a, c) == 1);
     inserir_meios(a, inicio, meio - 1); inserir_meios(a, meio + 1, fim);
 }
 int main(void) {
-    puts("BST: 127 IDs; altura em arestas; comparacoes = nos visitados");
-    puts("ordem,n,altura,media_busca_existente,comparacoes_busca_128");
+    printf("BST: 127 IDs; altura em arestas; comparacoes = nos visitados\n");
+    printf("ordem,n,altura,media_busca_existente,comparacoes_busca_128\n");
     for (int modo = 0; modo < 3; modo++) {
         Clientes a; clientes_iniciar(&a);
         if (modo == 2) inserir_meios(&a, 1, 127);

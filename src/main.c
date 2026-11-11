@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Retorna 1 se leu, 0 no fim da entrada e -1 se a linha e longa. */
-static int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
+int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
     printf("%s", mensagem);
     if (fgets(texto, (int)tamanho, stdin) == NULL) {
         return 0;
@@ -21,7 +21,7 @@ static int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
 }
 
 /* Le o numero do texto. A letra extra ajuda a rejeitar entradas como 12abc. */
-static int ler_numero(const char *mensagem, int *valor) {
+int ler_numero(const char *mensagem, int *valor) {
     char texto[80];
     char extra;
 
@@ -35,21 +35,21 @@ static int ler_numero(const char *mensagem, int *valor) {
             *valor >= 0) {
             return 1;
         }
-        puts("Informe um inteiro de 0 a 999999999.");
+        printf("Informe um inteiro de 0 a 999999999.\n");
     }
 }
 
-static void mostrar_menu(void) {
-    puts("\nAUTOPECAS - CADASTRO DE CLIENTES");
-    puts("1 Cadastrar cliente");
-    puts("2 Buscar cliente");
-    puts("3 Remover cliente");
-    puts("4 Listar clientes");
-    puts("0 Sair");
+void mostrar_menu(void) {
+    printf("\nAUTOPECAS - CADASTRO DE CLIENTES\n");
+    printf("1 Cadastrar cliente\n");
+    printf("2 Buscar cliente\n");
+    printf("3 Remover cliente\n");
+    printf("4 Listar clientes\n");
+    printf("0 Sair\n");
 }
 
 /* Os cadastros retornam 0 apenas quando a entrada termina. */
-static int cadastrar_cliente(Clientes *clientes) {
+int cadastrar_cliente(Clientes *clientes) {
     Cliente cliente = {0};
     if (!ler_numero("ID cliente: ", &cliente.id)) {
         return 0;
@@ -59,16 +59,16 @@ static int cadastrar_cliente(Clientes *clientes) {
         return 0;
     }
     if (resultado == -1) {
-        puts("Nome longo demais.");
+        printf("Nome longo demais.\n");
         return 1;
     }
     resultado = clientes_inserir(clientes, cliente);
     if (resultado == 1) {
-        puts("Cliente cadastrado.");
+        printf("Cliente cadastrado.\n");
     } else if (resultado == -1) {
-        puts("Sem memoria.");
+        printf("Sem memoria.\n");
     } else {
-        puts("ID duplicado ou dados invalidos.");
+        printf("ID duplicado ou dados invalidos.\n");
     }
     return 1;
 }
@@ -100,7 +100,7 @@ int main(void) {
                 if (cliente != NULL) {
                     printf("%d | %s\n", cliente->id, cliente->nome);
                 } else {
-                    puts("Cliente nao encontrado.");
+                    printf("Cliente nao encontrado.\n");
                 }
                 break;
             }
@@ -110,16 +110,16 @@ int main(void) {
                     break;
                 }
                 if (clientes_remover(&clientes, id)) {
-                    puts("Cliente removido.");
+                    printf("Cliente removido.\n");
                 } else {
-                    puts("Cliente nao encontrado.");
+                    printf("Cliente nao encontrado.\n");
                 }
                 break;
             case 4:
                 clientes_listar(&clientes);
                 break;
             default:
-                puts("Opcao invalida.");
+                printf("Opcao invalida.\n");
         }
     }
     clientes_destruir(&clientes);

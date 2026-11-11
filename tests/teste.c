@@ -2,12 +2,12 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-static Cliente cliente(int id) { Cliente c = {.id = id}; strcpy(c.nome, "Cliente teste"); return c; }
-static void verificar(Clientes *a, const int *ids, size_t n) {
+Cliente cliente(int id) { Cliente c = {.id = id}; strcpy(c.nome, "Cliente teste"); return c; }
+void verificar(Clientes *a, const int *ids, size_t n) {
     assert(a->quantidade == n);
     for (size_t i = 0; i < n; i++) assert(clientes_buscar(a, ids[i], NULL));
 }
-static void teste_bst(void) {
+void teste_bst(void) {
     Clientes a; clientes_iniciar(&a); size_t comp = 99;
     assert(clientes_altura(&a) == -1);
     assert(!clientes_buscar(&a, 1, &comp) && comp == 0);
@@ -31,10 +31,10 @@ static void teste_bst(void) {
     int balanceada[] = {4,2,6,1,3,5,7};
     for (int i = 0; i < 7; i++) assert(clientes_inserir(&a, cliente(balanceada[i])) == 1);
     assert(clientes_altura(&a) == 2); clientes_destruir(&a);
-    puts("BST: vazia, buscas, duplicatas, ordens, alturas, remocoes e liberacao OK");
+    printf("BST: vazia, buscas, duplicatas, ordens, alturas, remocoes e liberacao OK\n");
 }
 int main(void) {
     teste_bst();
-    puts("Todos os testes passaram.");
+    printf("Todos os testes passaram.\n");
     return 0;
 }

@@ -120,7 +120,7 @@ int clientes_remover(Clientes *arvore, int id) {
     return 1;
 }
 
-static int altura(const NoCliente *no) {
+int altura(const NoCliente *no) {
     if (no == NULL) {
         return -1;
     }
@@ -136,7 +136,7 @@ int clientes_altura(const Clientes *arvore) {
     return altura(arvore->raiz);
 }
 
-static void listar(const NoCliente *no) {
+void listar(const NoCliente *no) {
     if (no == NULL) {
         return;
     }
