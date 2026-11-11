@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Retorna 1 se leu, 0 no fim da entrada e -1 se a linha e longa. */
-int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
+int ler_linha(char *mensagem, char *texto, size_t tamanho) {
     printf("%s", mensagem);
     if (fgets(texto, (int)tamanho, stdin) == NULL) {
         return 0;
@@ -21,7 +21,7 @@ int ler_linha(const char *mensagem, char *texto, size_t tamanho) {
 }
 
 /* Le o numero do texto. A letra extra ajuda a rejeitar entradas como 12abc. */
-int ler_numero(const char *mensagem, int *valor) {
+int ler_numero(char *mensagem, int *valor) {
     char texto[80];
     char extra;
 
@@ -96,7 +96,7 @@ int main(void) {
                     continuar = 0;
                     break;
                 }
-                const Cliente *cliente = clientes_buscar(&clientes, id, NULL);
+                Cliente *cliente = clientes_buscar(&clientes, id, NULL);
                 if (cliente != NULL) {
                     printf("%d | %s\n", cliente->id, cliente->nome);
                 } else {

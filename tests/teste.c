@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 Cliente cliente(int id) { Cliente c = {.id = id}; strcpy(c.nome, "Cliente teste"); return c; }
-void verificar(Clientes *a, const int *ids, size_t n) {
+void verificar(Clientes *a, int *ids, size_t n) {
     assert(a->quantidade == n);
     for (size_t i = 0; i < n; i++) assert(clientes_buscar(a, ids[i], NULL));
 }

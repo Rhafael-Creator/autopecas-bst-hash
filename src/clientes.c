@@ -53,7 +53,7 @@ int clientes_inserir(Clientes *arvore, Cliente cliente) {
     return 1;
 }
 
-const Cliente *clientes_buscar(const Clientes *arvore, int id, size_t *comparacoes) {
+Cliente *clientes_buscar(Clientes *arvore, int id, size_t *comparacoes) {
     NoCliente *atual = arvore->raiz;
     if (comparacoes != NULL) {
         *comparacoes = 0;
@@ -120,7 +120,7 @@ int clientes_remover(Clientes *arvore, int id) {
     return 1;
 }
 
-int altura(const NoCliente *no) {
+int altura(NoCliente *no) {
     if (no == NULL) {
         return -1;
     }
@@ -132,11 +132,11 @@ int altura(const NoCliente *no) {
     return direita + 1;
 }
 
-int clientes_altura(const Clientes *arvore) {
+int clientes_altura(Clientes *arvore) {
     return altura(arvore->raiz);
 }
 
-void listar(const NoCliente *no) {
+void listar(NoCliente *no) {
     if (no == NULL) {
         return;
     }
@@ -146,7 +146,7 @@ void listar(const NoCliente *no) {
     listar(no->dir);
 }
 
-void clientes_listar(const Clientes *arvore) {
+void clientes_listar(Clientes *arvore) {
     listar(arvore->raiz);
 }
 
