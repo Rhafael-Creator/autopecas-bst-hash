@@ -25,7 +25,8 @@ O sistema inicia vazio. Os dados ficam na memória e são perdidos ao sair.
 - 0: sair e liberar a memória.
 
 IDs devem ser positivos e únicos. Nomes aceitam espaços e até 79 bytes.
-A leitura usa `fgets` para nomes e `strtol` para validar números.
+A leitura usa `fgets` para ler a linha e `sscanf` para obter o número digitado.
+São aceitos números de 0 a 999999999; o ID do cliente deve ser maior que zero.
 
 1. `include/clientes.h`: campos do cliente, árvore e funções disponíveis.
 2. `src/clientes.c`: implementação da árvore.
